@@ -19,7 +19,7 @@ library
                    Data.Conduit.SafeWrite
   ghc-options: -Wall
   build-depends:
-    base > 4 && < 5,
+    base > 4.8 && < 5,
     bytestring,
     conduit >= 1.0,
     conduit-combinators,
@@ -36,8 +36,7 @@ Test-Suite safeiotest
   ghc-options: -Wall
   hs-source-dirs: .
   build-depends:
-    base > 4 && < 5,
-    base > 4 && < 5,
+    base > 4.8 && < 5,
     bytestring,
     conduit >= 1.0,
     conduit-combinators,
