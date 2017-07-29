@@ -3,7 +3,7 @@ module System.IO.SafeWrite
     , syncFile
     ) where
 
-import           System.FilePath (takeDirectory)
+import           System.FilePath (takeDirectory, takeBaseName)
 import           System.Posix.IO (openFd, defaultFileFlags, closeFd, OpenMode(..))
 import           System.Posix.Unistd (fileSynchronise)
 import           Control.Exception (bracket, onException)
@@ -38,7 +38,7 @@ withOutputFile ::
             -> (Handle -> IO a) -- ^ action to execute
             -> IO a
 withOutputFile finalname act = do
-    (tname, th) <- openTempFile (takeDirectory finalname) finalname
+    (tname, th) <- openTempFile (takeDirectory finalname) (takeBaseName finalname)
     (do
         r <- act th
         hClose th

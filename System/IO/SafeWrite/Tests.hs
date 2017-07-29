@@ -11,7 +11,7 @@ import           Data.Conduit ((.|))
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Exception (throwIO)
 import           System.IO.Error (isDoesNotExistError, catchIOError)
-import           System.Directory (doesFileExist, removeFile)
+import           System.Directory (doesFileExist, removeFile, createDirectory, removeDirectory)
 import           System.IO (hPutStrLn)
 
 import System.IO.SafeWrite
@@ -45,11 +45,22 @@ case_not_create_on_exception = do
 
 case_no_intermediate_output = do
     withOutputFile outname $ \h -> do
-        hPutStrLn h "Hello Worlld"
+        hPutStrLn h "Hello World"
         partial <- doesFileExist outname
         assertBool "Partial file should not exist before internal action ends" (not partial)
     (doesFileExist outname) >>= assertBool "Output file was not created"
     removeFile outname
+
+
+case_in_subdirectory = do
+    let subdir = "subdirectory_for_testing"
+        ofname = subdir ++ "/file.txt"
+
+    createDirectory subdir
+    withOutputFile ofname $ flip hPutStrLn "Hello World"
+    (doesFileExist ofname) >>= assertBool "Output file was not created"
+    removeFile ofname
+    removeDirectory subdir
 
 case_conduit_create_output = do
     C.runConduitRes $
@@ -76,3 +87,15 @@ case_conduit_no_intermediate_output = do
         ) .| safeSinkFile outname
     (doesFileExist outname) >>= assertBool "Output file was not created at the end of conduit processing"
     removeFile outname
+
+case_conduit_in_subdirectory = do
+    let subdir = "subdirectory_for_testing"
+        ofname = subdir ++ "/file.txt"
+
+    createDirectory subdir
+    C.runConduitRes $
+        C.yield "Hello World" .| safeSinkFile ofname
+    (doesFileExist ofname) >>= assertBool "Output file was not created"
+    removeFile ofname
+    removeDirectory subdir
+

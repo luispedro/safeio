@@ -1,8 +1,8 @@
 name:               safeio
-version:            0.0.2.0
+version:            0.0.3.0
 synopsis:           Write output to disk atomically
 description:        This package implements utilities to perform atomic output
-		    so as to avoid the problem of partial intermediate files.
+                    so as to avoid the problem of partial intermediate files.
 category:           IO
 author:             Luis Pedro Coelho
 maintainer:         Luis Pedro Coelho

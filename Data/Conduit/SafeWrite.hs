@@ -6,7 +6,7 @@ import qualified Data.Conduit as C
 import qualified Data.Conduit.Combinators as CC
 import qualified Data.ByteString as B
 import           Data.IORef (newIORef, writeIORef, readIORef)
-import           System.FilePath (takeDirectory)
+import           System.FilePath (takeDirectory, takeBaseName)
 import           System.IO (hClose, openTempFile)
 import           System.Directory (renameFile, removeFile)
 import           Control.Monad (unless)
@@ -28,7 +28,7 @@ safeSinkFile finalname = C.bracketP
                             writeMove
     where
         acquire = do
-            (tname, th) <- openTempFile (takeDirectory finalname) finalname
+            (tname, th) <- openTempFile (takeDirectory finalname) (takeBaseName finalname)
             completed <- newIORef False
             return (tname, th, completed)
         writeMove (tname, th, completed) = do
