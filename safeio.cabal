@@ -1,5 +1,5 @@
 name:               safeio
-version:            0.0.3.0
+version:            0.0.4.0
 synopsis:           Write output to disk atomically
 description:        This package implements utilities to perform atomic output
                     so as to avoid the problem of partial intermediate files.
@@ -32,7 +32,9 @@ Test-Suite safeiotest
   default-language: Haskell2010
   type: exitcode-stdio-1.0
   main-is: System/IO/SafeWrite/Tests.hs
-  other-modules: System.IO.SafeWrite
+  other-modules:
+        System.IO.SafeWrite
+        Data.Conduit.SafeWrite
   ghc-options: -Wall
   hs-source-dirs: .
   build-depends:

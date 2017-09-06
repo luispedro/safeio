@@ -6,7 +6,9 @@ import           Test.Framework.TH
 import           Test.HUnit
 import           Test.Framework.Providers.HUnit
 
+import qualified Data.ByteString as B
 import qualified Data.Conduit as C
+import qualified Data.Conduit.Combinators as CC
 import           Data.Conduit ((.|))
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Exception (throwIO)
@@ -68,6 +70,18 @@ case_conduit_create_output = do
     (doesFileExist outname) >>= assertBool "Output file was not created"
     removeFile outname
 
+case_conduit_create_output_pass = do
+        C.runConduitRes $
+            C.yield "Hello World"
+                .| atomicConduitUseFile outname writeout
+                .| CC.sinkNull
+        (doesFileExist outname) >>= assertBool "Output file was not created"
+        removeFile outname
+    where
+        writeout h = C.awaitForever $ \line -> do
+            C.yield line
+            liftIO $ B.hPutStrLn h (B.take 8 line)
+
 case_conduit_not_create_on_exception = do
     (C.runConduitRes $
         (do
@@ -76,6 +90,7 @@ case_conduit_not_create_on_exception = do
             ) .| safeSinkFile outname
         ) `catchIOError` \_ -> return ()
     (not <$> doesFileExist outname) >>= assertBool "Output file was created despite exception being raised"
+
 
 case_conduit_no_intermediate_output = do
     C.runConduitRes $

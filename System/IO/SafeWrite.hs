@@ -1,12 +1,14 @@
 module System.IO.SafeWrite
     ( withOutputFile
     , syncFile
+    , allocateTempFile
+    , finalizeTempFile
     ) where
 
 import           System.FilePath (takeDirectory, takeBaseName)
 import           System.Posix.IO (openFd, defaultFileFlags, closeFd, OpenMode(..))
 import           System.Posix.Unistd (fileSynchronise)
-import           Control.Exception (bracket, onException)
+import           Control.Exception (bracket, bracketOnError)
 import           System.IO (Handle, hClose, openTempFile)
 import           System.Directory (renameFile, removeFile)
 
@@ -37,12 +39,25 @@ withOutputFile ::
             FilePath -- ^ Final desired file path
             -> (Handle -> IO a) -- ^ action to execute
             -> IO a
-withOutputFile finalname act = do
-    (tname, th) <- openTempFile (takeDirectory finalname) (takeBaseName finalname)
-    (do
-        r <- act th
+withOutputFile finalname act =
+    bracketOnError
+        (allocateTempFile finalname)
+        (finalizeTempFile finalname False)
+        (\tdata@(_, th) -> do
+            r <- act th
+            finalizeTempFile finalname True tdata
+            return r)
+
+allocateTempFile :: FilePath -> IO (FilePath, Handle)
+allocateTempFile finalname = openTempFile (takeDirectory finalname) (takeBaseName finalname)
+
+finalizeTempFile :: FilePath -> Bool -> (FilePath, Handle) -> IO ()
+finalizeTempFile finalname ok (tname, th)
+    | ok = do
         hClose th
         syncFile tname
         renameFile tname finalname
-        return r) `onException` (hClose th >> removeFile tname)
+    | otherwise = do
+        hClose th
+        removeFile tname
 

@@ -1,19 +1,18 @@
 module Data.Conduit.SafeWrite
     ( safeSinkFile
+    , atomicConduitUseFile
     ) where
 
+import qualified Data.ByteString as B
 import qualified Data.Conduit as C
 import qualified Data.Conduit.Combinators as CC
-import qualified Data.ByteString as B
-import           Data.IORef (newIORef, writeIORef, readIORef)
-import           System.FilePath (takeDirectory, takeBaseName)
-import           System.IO (hClose, openTempFile)
-import           System.Directory (renameFile, removeFile)
-import           Control.Monad (unless)
+import           Data.IORef (newIORef, writeIORef, readIORef, IORef)
+import           System.IO (Handle)
 import           Control.Monad.Trans.Resource
-import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad (unless)
+import           Control.Monad.IO.Class (liftIO, MonadIO(..))
 
-import           System.IO.SafeWrite (syncFile)
+import           System.IO.SafeWrite (allocateTempFile, finalizeTempFile)
 
 -- | Write to file |finalname| using a temporary file and atomic move.
 --
@@ -22,25 +21,29 @@ import           System.IO.SafeWrite (syncFile)
 safeSinkFile :: (MonadResource m) =>
                     FilePath -- ^ Final filename
                     -> C.Sink B.ByteString m ()
-safeSinkFile finalname = C.bracketP
+safeSinkFile finalname = atomicConduitUseFile finalname CC.sinkHandle
+
+-- | Conduit using a Handle in an atomic way
+atomicConduitUseFile :: (MonadResource m) =>
+                    FilePath -- ^ Final filename
+                    -> (Handle -> C.ConduitM i o m a) -- ^ Conduit which uses a Handle
+                    -> C.ConduitM i o m a
+atomicConduitUseFile finalname cond = C.bracketP
                             acquire 
                             deleteTempOnError
-                            writeMove
+                            action
     where
-        acquire = do
-            (tname, th) <- openTempFile (takeDirectory finalname) (takeBaseName finalname)
-            completed <- newIORef False
-            return (tname, th, completed)
-        writeMove (tname, th, completed) = do
-            CC.sinkHandle th
+        acquire :: IO ((FilePath, Handle), IORef Bool)
+        acquire = ((,) <$> allocateTempFile finalname <*> newIORef False)
+        action (tdata@(_, th), completed) = do
+            r <- cond th
             liftIO $ do
-                hClose th
-                syncFile tname
-                renameFile tname finalname
+                finalizeTempFile finalname True tdata
                 writeIORef completed True
-        deleteTempOnError (tname, th, completed) = do
-            completed' <- readIORef completed
-            unless completed' $ do
-                hClose th
-                removeFile tname
+            return r
+        deleteTempOnError :: ((FilePath, Handle), IORef Bool) -> IO ()
+        deleteTempOnError (tdata, completed) = do
+            unlessM (readIORef completed) $
+                liftIO $ finalizeTempFile finalname False tdata
 
+        unlessM c act = c >>= flip unless act
