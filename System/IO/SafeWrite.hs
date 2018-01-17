@@ -8,7 +8,8 @@ module System.IO.SafeWrite
 import           System.FilePath (takeDirectory, takeBaseName)
 import           System.Posix.IO (openFd, defaultFileFlags, closeFd, OpenMode(..))
 import           System.Posix.Unistd (fileSynchronise)
-import           Control.Exception (bracket, bracketOnError)
+import           Control.Monad.Catch (bracket, bracketOnError, MonadMask(..))
+import           Control.Monad.IO.Class (MonadIO(..))
 import           System.IO (Handle, hClose, openTempFile)
 import           System.Directory (renameFile, removeFile)
 
@@ -35,17 +36,17 @@ syncFile fname = do
 -- raised, then the temporary output file will be deleted and not saved to
 -- disk. Thus, the result file will either contain the complete result or will
 -- be empty.
-withOutputFile ::
+withOutputFile :: (MonadMask m, MonadIO m) =>
             FilePath -- ^ Final desired file path
-            -> (Handle -> IO a) -- ^ action to execute
-            -> IO a
+            -> (Handle -> m a) -- ^ action to execute
+            -> m a
 withOutputFile finalname act =
     bracketOnError
-        (allocateTempFile finalname)
-        (finalizeTempFile finalname False)
+        (liftIO $ allocateTempFile finalname)
+        (liftIO . finalizeTempFile finalname False)
         (\tdata@(_, th) -> do
             r <- act th
-            finalizeTempFile finalname True tdata
+            liftIO $ finalizeTempFile finalname True tdata
             return r)
 
 allocateTempFile :: FilePath -> IO (FilePath, Handle)

@@ -24,6 +24,7 @@ library
     conduit >= 1.0,
     conduit-combinators,
     directory,
+    exceptions,
     filepath,
     resourcet,
     unix
@@ -43,6 +44,7 @@ Test-Suite safeiotest
     conduit >= 1.0,
     conduit-combinators,
     directory,
+    exceptions,
     filepath,
     resourcet,
     unix,
