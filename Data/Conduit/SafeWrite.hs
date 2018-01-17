@@ -14,10 +14,12 @@ import           Control.Monad.IO.Class (liftIO, MonadIO(..))
 
 import           System.IO.SafeWrite (allocateTempFile, finalizeTempFile)
 
--- | Write to file |finalname| using a temporary file and atomic move.
+-- | Write to file 'finalname' using a temporary file and atomic move.
 --
 -- The file is only written if the sink runs to completion without errors. Any
 -- form of early termination will cause the output to be removed.
+--
+-- This function is deprecated in favor of 'Data.Conduit.Binary.SinkFileCautious'
 safeSinkFile :: (MonadResource m) =>
                     FilePath -- ^ Final filename
                     -> C.Sink B.ByteString m ()

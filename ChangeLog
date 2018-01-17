@@ -1,3 +1,6 @@
+Version 0.0.4.0+
+	* Deprecate safeSinkFile
+
 Version 0.0.4.0 2017-09-07 by luispedro
 	* Add atomicConduitUseFile
 
