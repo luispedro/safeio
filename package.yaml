@@ -1,0 +1,44 @@
+name:               safeio
+version:            0.0.4.0
+synopsis:           Write output to disk atomically
+description:        This package implements utilities to perform atomic output so as to avoid the problem of partial intermediate files.
+category:           IO
+author:             Luis Pedro Coelho
+maintainer:         Luis Pedro Coelho
+license:            MIT
+license-file:       COPYING
+build-type:         Simple
+bug-reports:        https://github.com/luispedro/safeio/issues
+source-dirs:
+ - ./
+
+extra-source-files:
+ - README.md
+ - ChangeLog
+dependencies:
+ - base > 4.8 && < 5
+ - bytestring
+ - conduit >= 1.0
+ - conduit-combinators
+ - directory
+ - exceptions
+ - filepath
+ - resourcet
+ - unix
+ghc-options:
+ - -Wall
+
+library:
+  exposed-modules:
+      - System.IO.SafeWrite
+      - Data.Conduit.SafeWrite
+  other-modules: []
+
+tests:
+  safeiotest:
+    main: System/IO/SafeWrite/Tests.hs
+    dependencies:
+      - HUnit
+      - test-framework
+      - test-framework-hunit
+      - test-framework-th
