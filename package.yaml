@@ -8,7 +8,7 @@ maintainer:         Luis Pedro Coelho
 license:            MIT
 license-file:       COPYING
 build-type:         Simple
-bug-reports:        https://github.com/luispedro/safeio/issues
+github:             luispedro/safeio
 source-dirs:
  - ./
 
