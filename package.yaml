@@ -1,7 +1,10 @@
 name:               safeio
 version:            0.0.4.0
 synopsis:           Write output to disk atomically
-description:        This package implements utilities to perform atomic output so as to avoid the problem of partial intermediate files.
+description:        >
+                    This package implements utilities to perform atomic output
+                    so as to avoid the problem of partial intermediate files.
+
 category:           IO
 author:             Luis Pedro Coelho
 maintainer:         Luis Pedro Coelho
@@ -27,6 +30,15 @@ dependencies:
  - unix
 ghc-options:
  - -Wall
+default-extensions:
+  - BangPatterns
+  - OverloadedStrings
+  - CPP
+
+when:
+  - condition: ! 'os(windows)'
+    cpp-options:
+      - -DWINDOWS
 
 library:
   exposed-modules:

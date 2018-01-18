@@ -6,19 +6,22 @@ module System.IO.SafeWrite
     ) where
 
 import           System.FilePath (takeDirectory, takeBaseName)
-import           System.Posix.IO (openFd, defaultFileFlags, closeFd, OpenMode(..))
-import           System.Posix.Unistd (fileSynchronise)
 import           Control.Monad.Catch (bracket, bracketOnError, MonadMask(..))
 import           Control.Monad.IO.Class (MonadIO(..))
 import           System.IO (Handle, hClose, openTempFile)
 import           System.Directory (renameFile, removeFile)
 
+#ifndef WINDOWS
+import           System.Posix.IO (openFd, defaultFileFlags, closeFd, OpenMode(..))
+import           System.Posix.Unistd (fileSynchronise)
+#endif
 
 -- | Sync a file to disk
 --
--- Only supported on Posix (patches with Windows support are welcome)
+-- On Windows, this is a fake function.
 syncFile :: FilePath -- ^ File to sync
             -> IO ()
+#ifndef WINDOWS
 syncFile fname = do
     bracket (openFd fname ReadWrite Nothing defaultFileFlags)
         closeFd
@@ -27,6 +30,9 @@ syncFile fname = do
     bracket (openFd (takeDirectory fname) ReadOnly Nothing defaultFileFlags)
         closeFd
         fileSynchronise
+#else
+syncFile fname = return ()
+#endif
 
 -- | Variation of 'withFile' for output files.
 --
