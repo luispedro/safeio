@@ -3,7 +3,7 @@
 [![Hackage](https://img.shields.io/hackage/v/safeio.svg)](https://hackage.haskell.org/package/safeio)
 [![Hackage-Deps](https://img.shields.io/hackage-deps/v/safeio.svg)](http://packdeps.haskellers.com/feed?needle=safeio)
 [![Stackage (LTS)](http://stackage.org/package/safeio/badge/lts)](http://stackage.org/lts/package/safeio)
-[![Travis](https://api.travis-ci.org/luispedro/safeio.png)](https://travis-ci.org/luispedro/safeio)
+[![Travis](https://api.travis-ci.com/luispedro/safeio.png)](https://travis-ci.com/luispedro/safeio)
 Atomic IO
 
 This is a simple module, which enables writing in atomic mode. It
