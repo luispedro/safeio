@@ -22,7 +22,7 @@ import           System.IO.SafeWrite (allocateTempFile, finalizeTempFile)
 -- This function is deprecated in favor of 'Data.Conduit.Binary.SinkFileCautious'
 safeSinkFile :: (MonadResource m) =>
                     FilePath -- ^ Final filename
-                    -> C.Sink B.ByteString m ()
+                    -> C.ConduitT B.ByteString C.Void m ()
 safeSinkFile finalname = atomicConduitUseFile finalname CC.sinkHandle
 
 -- | Conduit using a Handle in an atomic way
