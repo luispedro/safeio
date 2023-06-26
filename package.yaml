@@ -51,6 +51,7 @@ tests:
     main: System/IO/SafeWrite/Tests.hs
     dependencies:
       - HUnit
-      - test-framework
-      - test-framework-hunit
-      - test-framework-th
+      - tasty
+      - tasty-hunit
+      - tasty-th
+

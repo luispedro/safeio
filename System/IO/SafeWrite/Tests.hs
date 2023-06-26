@@ -2,11 +2,11 @@
 
 module Main where
 
-import           Test.Framework.TH
-import           Test.HUnit
-import           Test.Framework.Providers.HUnit
+import Test.Tasty.TH
+import Test.Tasty.HUnit
 
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as B8
 import qualified Data.Conduit as C
 import qualified Data.Conduit.Combinators as CC
 import           Data.Conduit ((.|))
@@ -80,7 +80,7 @@ case_conduit_create_output_pass = do
     where
         writeout h = C.awaitForever $ \line -> do
             C.yield line
-            liftIO $ B.hPutStrLn h (B.take 8 line)
+            liftIO $ B8.hPutStrLn h (B.take 8 line)
 
 case_conduit_not_create_on_exception = do
     (C.runConduitRes $
