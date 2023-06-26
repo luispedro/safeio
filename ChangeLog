@@ -1,4 +1,4 @@
-Unpublished
+Version 0.0.6.0 2023-06-27 by luispedro
 	* Add compatibility code for unix-2.8 (which changed the signature of
 	openFd)
 
